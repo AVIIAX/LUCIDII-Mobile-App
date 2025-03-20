@@ -126,7 +126,7 @@ const ProfileScreen = ({ route }) => {
 
   return (
     <View style={styles.screenContainer}>
-      <Header isGoBack={true} title={"Profile"} />
+      <Header isGoBack={false} title={"Profile"} />
       <ScrollView
         contentContainerStyle={styles.container}
         refreshControl={
