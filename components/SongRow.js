@@ -1,10 +1,13 @@
-import { StyleSheet, Text, View, Image, TouchableNativeFeedback, Pressable } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, Image, TouchableNativeFeedback, TouchableOpacity, Modal, Pressable, TouchableWithoutFeedback } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
 import { db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { Audio } from 'expo-av';
 import Entypo from '@expo/vector-icons/Entypo';
 import { useAudioPlayer } from '../AudioPlayer';
+import { UserContext } from "../UserContext";
+import { useNavigation } from '@react-navigation/native';
+
 
 // Function to fetch track duration using expo-av
 const getTrackDuration = async (url) => {
@@ -65,8 +68,12 @@ const getTrack = async (id) => {
 };
 
 const SongRow = ({ trackId, playlist }) => {
+  const { uid } = useContext(UserContext);
   const [track, setTrack] = useState(null);
-  const { loadSong, playOrPauseSong, isPlaying, currentTrack } = useAudioPlayer();
+  const { loadSong, playOrPauseSong, isPlaying, currentTrack, toggleLike} = useAudioPlayer();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const navigation = useNavigation()
 
   // Fetch track data when trackId changes
   useEffect(() => {
@@ -76,13 +83,26 @@ const SongRow = ({ trackId, playlist }) => {
         const trackData = await getTrack(trackId);
         if (trackData) {
           setTrack(trackData);
+          setIsLiked(trackData?.liked?.includes(uid)); 
         }
       };
       fetchTrack();
+      
     } else {
       console.log("No track ID provided");
     }
-  }, [trackId]);
+  }, [trackId, uid]);
+
+
+  const handleToggleLike = async () => {
+    if (!track || !uid) return;
+    await toggleLike(track.id, uid);
+    setIsLiked(!isLiked); // Optimistically update UI
+  };
+  const handleLongPress = () => {
+    setModalVisible(true);
+  };
+
 
   // onPress handler: 
   // - If this track is already active, toggle play/pause.
@@ -101,41 +121,85 @@ const SongRow = ({ trackId, playlist }) => {
   const isThisTrackPlaying = currentTrack && currentTrack.id === track?.id && isPlaying;
 
   return (
-    <TouchableNativeFeedback 
-      onPress={handlePress}
-      background={TouchableNativeFeedback.Ripple('#313030', false)}
-    >
-      <View style={styles.container}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Image
-            source={{ uri: track?.image || 'https://atlast.fm/images/no-artwork.jpg' }}
-            style={styles.cardImage}
-          />
-          <View style={{ marginLeft: 10 }}>
-          <Text style={[styles.text, { color: isThisTrackPlaying ? 'green' : '#e3e3e3' }]}>
-              {track ? track.name : 'Loading...'}
-            </Text>
-
-            <Pressable onPress={() => navigation.navigate("Profile", { userId: track.artist })}>
-            <Text style={{ color: 'gray', fontSize: 15 }}>
-              {track ? track.artistName : 'Loading...'}
-            </Text>
-            </Pressable>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-              {isThisTrackPlaying ? (
-                <Entypo name="controller-paus" size={15} color="#e3e3e3" />
-              ) : (
-                <Entypo name="controller-play" size={15} color="#e3e3e3" />
-              )}
-              <Text style={{ color: 'gray', fontSize: 14, marginLeft: 5 }}>
-                {track ? track.views : '00'} · {track ? formatDuration(track.duration) : '00:00'}
+    <>
+      <TouchableNativeFeedback
+        onPress={handlePress}
+        onLongPress={handleLongPress}
+        background={TouchableNativeFeedback.Ripple('#313030', false)}
+      >
+        <View style={styles.container}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Image
+              source={{ uri: track?.image || 'https://atlast.fm/images/no-artwork.jpg' }}
+              style={styles.cardImage}
+            />
+            <View style={{ marginLeft: 10 }}>
+              <Text style={[styles.text, { color: isThisTrackPlaying ? 'green' : '#e3e3e3' }]}>
+                {track ? track.name : 'Loading...'}
               </Text>
+
+              <Pressable onPress={() => navigation.navigate("Profile", { userId: track.artist })}>
+                <Text style={{ color: 'gray', fontSize: 15 }}>
+                  {track ? track.artistName : 'Loading...'}
+                </Text>
+              </Pressable>
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+                {isThisTrackPlaying ? (
+                  <Entypo name="controller-paus" size={15} color="#e3e3e3" />
+                ) : (
+                  <Entypo name="controller-play" size={15} color="#e3e3e3" />
+                )}
+                <Text style={{ color: 'gray', fontSize: 14, marginLeft: 5 }}>
+                  {track ? track.views : '00'} · {track ? formatDuration(track.duration) : '00:00'}
+                </Text>
+              </View>
             </View>
           </View>
         </View>
-      </View>
-    </TouchableNativeFeedback>
+      </TouchableNativeFeedback>
+
+      {/* Options Modal */}
+      <Modal
+        transparent={true}
+        animationType="fade"
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContainer}>
+                <TouchableOpacity onPress={() => { handleToggleLike(), setModalVisible(false); }}>
+                  {isLiked ?
+                    <Text style={styles.modalOption}>Remove From Favorites</Text>
+                    :
+                    <Text style={styles.modalOption}>Add To Favorites</Text>}
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => {
+                  navigation.navigate("SearchTab", {
+                    screen: "ArtistProfile",
+                    params: { userId: track?.artist }
+                  });
+
+                  setModalVisible(false);
+                }}>
+                  <Text style={styles.modalOption}>Go To Artist</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => { /* Share song logic */ setModalVisible(false); }}>
+                  <Text style={styles.modalOption}>Share Song</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setModalVisible(false)}>
+                  <Text style={styles.modalCancel}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </>
   );
 };
 
@@ -165,6 +229,34 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderColor: '#e3e3e3',
     borderWidth: 0.6,
+  },
+
+   // Modal styles
+   modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    backgroundColor: '#222',
+    padding: 20,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  modalOption: {
+    color: 'white',
+    fontSize: 16,
+    paddingVertical: 12,
+    textAlign: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#444',
+  },
+  modalCancel: {
+    color: 'red',
+    fontSize: 16,
+    paddingVertical: 12,
+    textAlign: 'center',
+    marginTop: 10,
   },
 });
 

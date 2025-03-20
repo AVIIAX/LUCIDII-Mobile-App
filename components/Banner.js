@@ -6,7 +6,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { Audio } from "expo-av";
 import Feather from '@expo/vector-icons/Feather';
 import Entypo from '@expo/vector-icons/Entypo';
-import {  UserContext } from "../UserContext";
+import { UserContext } from "../UserContext";
 
 
 // Function to fetch track duration using expo-av
@@ -68,8 +68,8 @@ const getTrack = async (id) => {
 };
 
 const Banner = ({ trackId }) => {
-  const { uid  } = useContext(UserContext);
-  const { currentTrack, isPlaying, playOrPauseSong, loadSong, toggleLike  } = useAudioPlayer();
+  const { uid } = useContext(UserContext);
+  const { currentTrack, isPlaying, playOrPauseSong, loadSong, toggleLike } = useAudioPlayer();
   const [track, setTrack] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const isThisTrackPlaying = currentTrack && currentTrack.id === track?.id && isPlaying;
@@ -146,26 +146,26 @@ const Banner = ({ trackId }) => {
             {isThisTrackPlaying ? (
               <Feather name="pause" size={40} color="#e3e3e3" />
             ) : (
-              <Feather name="play" size={40} color="#e3e3e3" />
+              <Feather name="play" size={40} color="#e3e3e391" />
             )}
 
           </Pressable>
 
           <Pressable onPress={handleToggleLike} style={styles.infoContainer}>
-  {isLiked ? (
-    <Entypo name="heart" size={40} color="#e3e3e3" />
-  ) : (
-    <Entypo name="heart-outlined" size={40} color="#e3e3e3" />
-  )}
-</Pressable>
+            {isLiked ? (
+              <Entypo name="heart" size={40} color="#e3e3e3" />
+            ) : (
+              <Entypo name="heart-outlined" size={40} color="#e3e3e3" />
+            )}
+          </Pressable>
 
 
           <View style={{
             justifyContent: 'center'
           }}>
-          <Text style={styles.infoText}>
-            {track ? track.views : '00'} · {track && track.liked ? track.liked.length : '00'}
-          </Text>
+            <Text style={styles.infoText}>
+              {track ? track.views : '00'} · {track && track.liked ? track.liked.length : '00'}
+            </Text>
           </View>
 
         </View>

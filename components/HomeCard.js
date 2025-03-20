@@ -20,7 +20,7 @@ const HomeCard = ({ trackId, playList }) => {
   const { loadSong, playOrPauseSong, isPlaying, currentTrack, toggleLike } = useAudioPlayer();
   const [modalVisible, setModalVisible] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-const navigation = useNavigation()
+  const navigation = useNavigation()
 
   const track = playList.find((track) => track.id === trackId);
   if (!track) return null;
@@ -56,12 +56,12 @@ const navigation = useNavigation()
       <TouchableNativeFeedback
         onPress={handlePress}
         onLongPress={handleLongPress}
-        background={TouchableNativeFeedback.Ripple('gray', false)}
+        background={TouchableNativeFeedback.Ripple('#363636ed', false)}
       >
         <View style={[styles.card, isCurrentTrack && styles.currentTrackCard]}>
           <Image source={{ uri: track.image }} style={styles.cardImage} />
           <Text style={[styles.cardText, isCurrentTrack && styles.currentCardText]}>{track.name}</Text>
-          <Text style={{ color: 'gray' }}>{track.artistName}</Text>
+          <Text style={{ color: '#8a8a8a' }}>{track.artistName}</Text>
         </View>
       </TouchableNativeFeedback>
 
@@ -83,11 +83,14 @@ const navigation = useNavigation()
                     <Text style={styles.modalOption}>Add To Favorites</Text>}
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => {  navigation.navigate("SearchTab", { 
-                screen: "ArtistProfile", 
-                params: { userId: track.artist } 
-              });
-               setModalVisible(false); }}>
+                <TouchableOpacity onPress={() => {
+                  navigation.navigate("SearchTab", {
+                    screen: "ArtistProfile",
+                    params: { userId: track.artist }
+                  });
+
+                  setModalVisible(false);
+                }}>
                   <Text style={styles.modalOption}>Go To Artist</Text>
                 </TouchableOpacity>
 
@@ -109,8 +112,9 @@ const navigation = useNavigation()
 // Styles
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#333',
+    backgroundColor: '#242424ed',
     padding: 20,
+    paddingBottom: 20,
     width: 130,
     height: 180,
     marginBottom: 10,
