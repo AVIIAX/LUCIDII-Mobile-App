@@ -144,7 +144,7 @@ const Banner = ({ trackId }) => {
 
           <Pressable onPress={handlePress} style={styles.infoContainer}>
             {isThisTrackPlaying ? (
-              <Feather name="pause" size={40} color="#e3e3e3" />
+              <Feather name="pause" size={40} color="#e3e3e391" />
             ) : (
               <Feather name="play" size={40} color="#e3e3e391" />
             )}
@@ -153,9 +153,9 @@ const Banner = ({ trackId }) => {
 
           <Pressable onPress={handleToggleLike} style={styles.infoContainer}>
             {isLiked ? (
-              <Entypo name="heart" size={40} color="#e3e3e3" />
+              <Entypo name="heart" size={40} color="#e3e3e391" />
             ) : (
-              <Entypo name="heart-outlined" size={40} color="#e3e3e3" />
+              <Entypo name="heart-outlined" size={40} color="#e3e3e391" />
             )}
           </Pressable>
 

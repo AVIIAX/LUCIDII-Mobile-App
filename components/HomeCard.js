@@ -61,7 +61,7 @@ const HomeCard = ({ trackId, playList }) => {
         <View style={[styles.card, isCurrentTrack && styles.currentTrackCard]}>
           <Image source={{ uri: track.image }} style={styles.cardImage} />
           <Text style={[styles.cardText, isCurrentTrack && styles.currentCardText]}>{track.name}</Text>
-          <Text style={{ color: '#8a8a8a' }}>{track.artistName}</Text>
+          <Text style={ styles.artistText}>{track.artistName}</Text>
         </View>
       </TouchableNativeFeedback>
 
@@ -115,8 +115,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#242424ed',
     padding: 20,
     paddingBottom: 20,
-    width: 130,
-    height: 180,
+    width: 110,
+    height: 'fit-content',
     marginBottom: 10,
     borderRadius: 8,
     alignItems: 'center',
@@ -124,8 +124,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   cardImage: {
-    width: 100,
-    height: 100,
+    width: 75,
+    height: 75,
     borderRadius: 8,
     marginBottom: 10,
     borderWidth: 1,
@@ -135,12 +135,16 @@ const styles = StyleSheet.create({
     color: '#e3e3e3',
     fontSize: 14,
     fontWeight: 'bold',
+    textAlign: 'left',
   },
   currentCardText: {
     color: '#ccedffe8',
     fontSize: 14,
     fontWeight: 'bold',
     letterSpacing: 1,
+  },
+  artistText: {
+    color: '#8a8a8a',
   },
   currentTrackCard: {
     borderWidth: 1,
