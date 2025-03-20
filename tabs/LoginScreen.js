@@ -36,7 +36,7 @@ const LoginScreen = () => {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.innerContainer}
         >
-          <Text style={styles.title}>MusicStream Login</Text>
+          <Text style={styles.title}>LUCIDII Login</Text>
           <TextInput
             placeholder="Email"
             placeholderTextColor="#888"
