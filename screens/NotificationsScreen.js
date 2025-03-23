@@ -1,4 +1,4 @@
-import {
+import { 
   FlatList,
   StyleSheet,
   Text,
@@ -18,10 +18,19 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const NotificationsScreen = () => {
   const { userData } = useContext(UserContext);
+  
   // Convert inboxMails to an array that includes the key.
   const initialMails = userData.inboxMails
-    ? Object.entries(userData.inboxMails).map(([key, mail]) => ({ key, ...mail }))
+    ? Object.entries(userData.inboxMails)
+        .map(([key, mail]) => ({ key, ...mail }))
+        // Sort by time descending (newest first)
+        .sort((a, b) => {
+          const aTime = a.time?.toDate ? a.time.toDate() : new Date(a.time);
+          const bTime = b.time?.toDate ? b.time.toDate() : new Date(b.time);
+          return bTime - aTime;
+        })
     : [];
+  
   // Local state for mails (so we can refresh independently)
   const [mails, setMails] = useState(initialMails);
   const [expandedMail, setExpandedMail] = useState(null);
@@ -46,8 +55,14 @@ const NotificationsScreen = () => {
       const userDocSnap = await getDoc(userDocRef);
       if (userDocSnap.exists()) {
         const inboxMails = userDocSnap.data().inboxMails || {};
-        // Map the object into an array that includes the Firestore key.
-        const mailsArray = Object.entries(inboxMails).map(([key, mail]) => ({ key, ...mail }));
+        // Map the object into an array that includes the Firestore key and sort by date descending.
+        const mailsArray = Object.entries(inboxMails)
+          .map(([key, mail]) => ({ key, ...mail }))
+          .sort((a, b) => {
+            const aTime = a.time?.toDate ? a.time.toDate() : new Date(a.time);
+            const bTime = b.time?.toDate ? b.time.toDate() : new Date(b.time);
+            return bTime - aTime;
+          });
         setMails(mailsArray);
       }
     } catch (error) {
@@ -104,7 +119,7 @@ const NotificationsScreen = () => {
   // Open modal for the selected action and mail details
   const handleActionPress = (action, mail, index) => {
     setSelectedAction(action);
-    setSelectedMail({ mail, index }); // now mail contains the Firestore key as mail.key
+    setSelectedMail({ mail, index });
     setModalMessage('');
     setModalVisible(true);
   };
