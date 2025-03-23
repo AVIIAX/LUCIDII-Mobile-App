@@ -2,12 +2,12 @@ import React, { useContext } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { UserProvider, UserContext } from "../UserContext";
+import { UserContext } from "../UserContext";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useNavigation } from "@react-navigation/native";
 import GoBackArrow from "./GoBackArrow ";
 
-const Header = ({ isGoBack, title }) => {
+const Header = ({ isGoBack, isProEle = true, title, extraEle }) => {
   const { userData } = useContext(UserContext);
   const navigation = useNavigation();
 
@@ -22,21 +22,32 @@ const Header = ({ isGoBack, title }) => {
         </View>
       </View>
 
-      {/* Right aligned 'Get PRO' and icon */}
       <View style={styles.rightTextContainer}>
-        {userData?.isPro ? (
-          <Text>
-            <MaterialCommunityIcons name="chess-knight" size={24} color="#e3e3e3" />
-          </Text>
-        ) : (
-          <Pressable style={styles.proContainer}>
-            <Text style={[styles.rightText, { color: "#f7b1b1" }]}>Get PRO</Text>
-            <Ionicons name="diamond-outline" size={24} color="#bbb1f7" />
-          </Pressable>
+        {/* Render extraEle regardless of isProEle */}
+        {extraEle && (
+          <View style={styles.extraElementContainer}>
+            {extraEle}
+          </View>
         )}
-        <Pressable onPress={() => navigation.navigate("MailBox", { isMy: true })}>
-          <AntDesign name="mail" size={24} color="#e3e3e3" />
-        </Pressable>
+
+        {/* Only show this if isProEle is true */}
+        {isProEle && (
+          <>
+            {userData?.isPro ? (
+              <Text>
+                <MaterialCommunityIcons name="chess-knight" size={24} color="#e3e3e3" />
+              </Text>
+            ) : (
+              <Pressable style={styles.proContainer}>
+                <Text style={[styles.rightText, { color: "#f7b1b1" }]}>Get PRO</Text>
+                <Ionicons name="diamond-outline" size={24} color="#bbb1f7" />
+              </Pressable>
+            )}
+            <Pressable onPress={() => navigation.navigate("MailBox", { isMy: true })}>
+              <AntDesign name="mail" size={24} color="#e3e3e3" />
+            </Pressable>
+          </>
+        )}
       </View>
     </View>
   );
@@ -70,6 +81,11 @@ const styles = StyleSheet.create({
     flexDirection: "row", // Align 'Get PRO' and icons in a row
     alignItems: "center", // Vertically center items
     gap: 20, // Space between the elements
+  },
+  extraElementContainer: {
+    flexDirection: "row", // Keep the extra element in a row
+    alignItems: "center", // Vertically align elements
+    gap: 10, // Adjust gap between elements if needed
   },
   proContainer: {
     flexDirection: "row", // Arrange the text and icon in a row

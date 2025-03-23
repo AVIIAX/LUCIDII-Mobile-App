@@ -18,7 +18,7 @@ export default function App() {
               Position MusicPlayer above the BottomTabs.
               Adjust bottom value if needed (e.g., height of your tab bar).
             */}
-            <MusicPlayer style={{ position: "absolute", bottom: 60, left: 0, right: 0 }} />
+      
           </View>
         </NavigationContainer>
       </AudioPlayerProvider>

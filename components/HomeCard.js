@@ -20,7 +20,7 @@ const HomeCard = ({ trackId, playList }) => {
   const { loadSong, playOrPauseSong, isPlaying, currentTrack, toggleLike } = useAudioPlayer();
   const [modalVisible, setModalVisible] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-  const navigation = useNavigation()
+  const navigation = useNavigation();
 
   const track = playList.find((track) => track.id === trackId);
   if (!track) return null;
@@ -29,7 +29,7 @@ const HomeCard = ({ trackId, playList }) => {
 
   useEffect(() => {
     setIsLiked(track.liked?.includes(uid)); // Update like state
-  }, [track, uid])
+  }, [track, uid]);
 
   const handleToggleLike = async () => {
     if (!track || !uid) return;
@@ -61,7 +61,7 @@ const HomeCard = ({ trackId, playList }) => {
         <View style={[styles.card, isCurrentTrack && styles.currentTrackCard]}>
           <Image source={{ uri: track.image }} style={styles.cardImage} />
           <Text style={[styles.cardText, isCurrentTrack && styles.currentCardText]}>{track.name}</Text>
-          <Text style={ styles.artistText}>{track.artistName}</Text>
+          <Text style={styles.artistText}>{track.artistName}</Text>
         </View>
       </TouchableNativeFeedback>
 
@@ -77,7 +77,7 @@ const HomeCard = ({ trackId, playList }) => {
             <TouchableWithoutFeedback>
               <View style={styles.modalContainer}>
                 <TouchableOpacity onPress={() => { handleToggleLike(), setModalVisible(false); }}>
-                  {isLiked ?
+                  {isLiked ? 
                     <Text style={styles.modalOption}>Remove From Favorites</Text>
                     :
                     <Text style={styles.modalOption}>Add To Favorites</Text>}
@@ -88,7 +88,6 @@ const HomeCard = ({ trackId, playList }) => {
                     screen: "ArtistProfile",
                     params: { userId: track.artist }
                   });
-
                   setModalVisible(false);
                 }}>
                   <Text style={styles.modalOption}>Go To Artist</Text>
@@ -112,16 +111,19 @@ const HomeCard = ({ trackId, playList }) => {
 // Styles
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#242424ed',
+    backgroundColor: 'rgba(36, 36, 36, 0.6)',  // Glass effect with transparency
     padding: 20,
     paddingBottom: 20,
     width: 110,
     height: 'fit-content',
     marginBottom: 10,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: 'center',
     margin: 10,
     overflow: 'hidden',
+    backdropFilter: 'blur(10px)', // Optional: For blur effect (if supported by device)
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',  // Subtle border for glassmorphism
   },
   cardImage: {
     width: 75,
@@ -147,7 +149,7 @@ const styles = StyleSheet.create({
     color: '#8a8a8a',
   },
   currentTrackCard: {
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#e3e3e3',
   },
   // Modal styles
@@ -157,10 +159,11 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: '#222',
+    backgroundColor: 'rgba(34, 34, 34, 0.8)', // Semi-transparent dark background for modal
     padding: 20,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    backdropFilter: 'blur(10px)', // Optional: for blur effect in modal (if supported)
   },
   modalOption: {
     color: 'white',

@@ -165,10 +165,6 @@ const ProfileScreen = ({ route }) => {
           {userProfileData?.genre || "No Genre"}
         </Text>
 
-        {/* Follow/Unfollow Buttons */}
-        <View style={styles.followBtnContainer}>
-          <FollowButton />
-        </View>
         {/* Followers and Following Count */}
         <View style={styles.statsContainer}>
           <Text style={styles.statsText}>
@@ -296,11 +292,6 @@ const styles = StyleSheet.create({
     color: "#969696",
     fontSize: 12,
     marginTop: 5,
-    width: "100%",
-    paddingLeft: 20,
-  },
-  followBtnContainer: {
-    marginTop: 15,
     width: "100%",
     paddingLeft: 20,
   },
