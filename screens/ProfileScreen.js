@@ -20,6 +20,7 @@ import { doc, onSnapshot, getDoc } from "firebase/firestore"; // <-- Added getDo
 import HomeCard from "../components/HomeCard";
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import FollowButton from "../components/FollowButton";
+import CollabButton from "../components/CollabButton";
 
 const fetchTracks = async (trackIds) => {
   try {
@@ -163,6 +164,7 @@ const ProfileScreen = ({ route }) => {
         {/* Follow/Unfollow Buttons */}
         <View style={styles.followBtnContainer}>
           <FollowButton target={userId} />
+          <CollabButton target={userId} />
         </View>
         {/* Followers and Following Count */}
         <View style={styles.statsContainer}>
@@ -293,6 +295,8 @@ const styles = StyleSheet.create({
     marginTop: 15,
     width: "100%",
     paddingLeft: 20,
+    flexDirection: 'row',
+    gap: 10
   },
   statsContainer: {
     flexDirection: "row",

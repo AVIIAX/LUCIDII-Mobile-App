@@ -4,7 +4,7 @@ import LoginScreen from "./tabs/LoginScreen";
 import BottomTabs from "./BottomTabs";
 import { UserContext } from "./UserContext";
 import CreateScreen from "./screens/CreateScreen";
-
+import EditProfile from "./screens/EditProfile";
 const Stack = createNativeStackNavigator();
 
 const StackNavigator = () => {
@@ -16,6 +16,7 @@ const StackNavigator = () => {
      <>
         <Stack.Screen name="Main" component={BottomTabs} />
         <Stack.Screen name="Create" component={CreateScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfile} />
       </>
       ) : (
         <Stack.Screen name="Login" component={LoginScreen} />

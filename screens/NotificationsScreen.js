@@ -93,15 +93,35 @@ const NotificationsScreen = () => {
     fetchSenders();
   }, [mails]);
 
-  const toggleMessageVisibility = (index) => {
+  // Helper function to mark a mail as seen.
+  const markMailAsSeen = async (mailKey) => {
+    try {
+      const userDocRef = doc(db, "user", userData.uid);
+      await updateDoc(userDocRef, {
+        [`inboxMails.${mailKey}.seen`]: true
+      });
+      // Update local state.
+      setMails(prevMails => prevMails.map(mail => mail.key === mailKey ? { ...mail, seen: true } : mail));
+    } catch (error) {
+      console.error("Error marking mail as seen: ", error);
+    }
+  };
+
+  // Toggle the expansion of a mail.
+  const toggleMessageVisibility = async (index) => {
+    const selectedMail = mails[index];
     if (expandedMail === index) {
       setExpandedMail(null);
     } else {
+      // If the mail hasn't been seen, mark it as seen.
+      if (!selectedMail.seen) {
+        await markMailAsSeen(selectedMail.key);
+      }
       setExpandedMail(index);
     }
   };
 
-  // Format time ago from timestamp
+  // Format time ago from timestamp.
   const formatTimeAgo = (timestamp) => {
     const now = new Date();
     const time = timestamp?.toDate ? timestamp.toDate() : new Date(timestamp);
@@ -116,7 +136,7 @@ const NotificationsScreen = () => {
     return `${Math.floor(diffInDays / 30)} months ago`;
   };
 
-  // Open modal for the selected action and mail details
+  // Open modal for the selected action and mail details.
   const handleActionPress = (action, mail, index) => {
     setSelectedAction(action);
     setSelectedMail({ mail, index });
@@ -192,7 +212,7 @@ const NotificationsScreen = () => {
     );
   };
 
-  // Accept function with processing disabled during execution
+  // Accept function with processing disabled during execution.
   const accept = async (target, thisUser, mailFirestoreKey, message) => {
     try {
       const targetDocRef = doc(db, "user", target);
@@ -219,7 +239,7 @@ const NotificationsScreen = () => {
     }
   };
 
-  // Reject function with processing disabled during execution
+  // Reject function with processing disabled during execution.
   const reject = async (target, thisUser, mailFirestoreKey, message) => {
     try {
       const targetDocRef = doc(db, "user", target);
@@ -246,7 +266,7 @@ const NotificationsScreen = () => {
     }
   };
 
-  // Handler for when Send button in modal is pressed
+  // Handler for when Send button in modal is pressed.
   const handleSend = async () => {
     if (!selectedMail || isProcessing) return;
     setIsProcessing(true);
@@ -261,7 +281,7 @@ const NotificationsScreen = () => {
     }
     setIsProcessing(false);
     setModalVisible(false);
-    // Refresh inbox after completing the action
+    // Refresh inbox after completing the action.
     refreshInboxMails();
   };
 

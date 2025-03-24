@@ -10,9 +10,9 @@ const GoBackArrow = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.arrowButton}>
-        <Text style={styles.arrow}>
-        <Feather name="chevron-left" size={30} color="#e3e3e3" />
-        </Text> {/* Simple arrow using text */}
+       
+        <Feather style={styles.arrow} name="chevron-left" size={30} color="#e3e3e3" />
+       
       </TouchableOpacity>
     </View>
   );

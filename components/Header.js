@@ -6,16 +6,21 @@ import { UserContext } from "../UserContext";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useNavigation } from "@react-navigation/native";
 import GoBackArrow from "./GoBackArrow ";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 const Header = ({ isGoBack, isProEle = true, title, extraEle }) => {
   const { userData } = useContext(UserContext);
   const navigation = useNavigation();
 
+  // Convert inboxMails to an array if it exists, then check if there are any unread mails (seen === false)
+  const mailsArray = userData?.inboxMails ? Object.values(userData.inboxMails) : [];
+  const hasNewMails = mailsArray.some(mail => mail.seen === false);
+
   return (
     <View style={styles.header}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         {isGoBack ? <GoBackArrow /> : null}
-        
+
         {/* This View will center the 'title' text */}
         <View style={styles.titleContainer}>
           <Text style={styles.headerText}>{title}</Text>
@@ -30,21 +35,31 @@ const Header = ({ isGoBack, isProEle = true, title, extraEle }) => {
           </View>
         )}
 
-        {/* Only show this if isProEle is true */}
+        {/* Only show these if isProEle is true */}
         {isProEle && (
           <>
             {userData?.isPro ? (
-              <Text>
-                <MaterialCommunityIcons name="chess-knight" size={24} color="#e3e3e3" />
-              </Text>
+              <MaterialCommunityIcons name="chess-knight" size={24} color="#e3e3e3" />
             ) : (
               <Pressable style={styles.proContainer}>
                 <Text style={[styles.rightText, { color: "#f7b1b1" }]}>Get PRO</Text>
                 <Ionicons name="diamond-outline" size={24} color="#bbb1f7" />
               </Pressable>
             )}
-            <Pressable onPress={() => navigation.navigate("MailBox", { isMy: true })}>
+
+            <Pressable style={styles.creditsContainer} onPress={() => navigation.navigate("MailBox", { isMy: true })}>
+              <Text style={styles.creditsText}>{userData.credits}</Text>
+              <FontAwesome5 name="coins" size={20} color="#e3e3e3" />
+            </Pressable>
+
+            <Pressable 
+              style={styles.mailContainer}
+              onPress={() => navigation.navigate("MailBox", { isMy: true })}
+            >
               <AntDesign name="mail" size={24} color="#e3e3e3" />
+              {hasNewMails && (
+                <View style={styles.redDot} />
+              )}
             </Pressable>
           </>
         )}
@@ -98,6 +113,29 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "right", // Align text to the right
     marginRight: 5, // Space between the text and icon
+  },
+  creditsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  creditsText: {
+    color: '#e3e3e3',
+    fontSize: 20,
+  },
+  mailContainer: {
+    position: "relative",
+  },
+  redDot: {
+    position: "absolute",
+    top: -2,
+    right: -2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "red",
+    borderWidth: 1,
+    borderColor: "#171717",
   },
 });
 

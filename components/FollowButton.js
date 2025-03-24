@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   followBtn: {
-    width: 80,
+    paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 50,
     alignItems: "center",
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   unfollowBtn: {
-    width: 80,
+    paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 50,
     alignItems: "center",

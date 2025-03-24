@@ -20,8 +20,11 @@ import { doc, onSnapshot, getDoc } from "firebase/firestore"; // <-- Added getDo
 import HomeCard from "../components/HomeCard";
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import FollowButton from "../components/FollowButton";
+import Feather from '@expo/vector-icons/Feather';
+import { useNavigation } from "@react-navigation/native";
 
 const fetchTracks = async (trackIds) => {
+  
   try {
     const trackPromises = trackIds.map(async (trackId) => {
       // Fetch the track document
@@ -60,7 +63,8 @@ const ProfileScreen = ({ route }) => {
   const [showFullBio, setShowFullBio] = useState(false);
   const [myTracks, setMyTracks] = useState(null);
   const [myLikedTracks, setMyLikedTracks] = useState(null);
-
+  const navigation = useNavigation()
+  
   // Set up a realtime listener for the user data
   useEffect(() => {
     if (userId) {
@@ -156,6 +160,7 @@ const ProfileScreen = ({ route }) => {
             {userProfileData?.name || "No Name"}
           </Text>
           <SimpleLineIcons name="music-tone" size={15} color="#e3e3e3" />
+
         </View>
 
         <Text style={styles.location}>
@@ -164,6 +169,16 @@ const ProfileScreen = ({ route }) => {
         <Text style={styles.genre}>
           {userProfileData?.genre || "No Genre"}
         </Text>
+
+        <Pressable style={{
+          marginTop: 20,
+          width: "100%",
+          paddingLeft: 20,
+        }}
+        onPress={() => navigation.navigate("EditProfile")}
+        >
+          <Feather style={{}} name="edit-2" size={18} color="#e3e3e3" />
+        </Pressable>
 
         {/* Followers and Following Count */}
         <View style={styles.statsContainer}>

@@ -31,9 +31,11 @@ import {
 import Header from '../components/Header';
 import { UserContext } from '../UserContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const CreateScreen = () => {
-  const { uid } = useContext(UserContext);
+  const { userData, uid } = useContext(UserContext);
+  const navigation = useNavigation()
 
   // State variables for artwork image
   const [artwork, setArtwork] = useState(null);
@@ -51,6 +53,10 @@ const CreateScreen = () => {
 
   // Submission loading state
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+  // Credits error state
+  const [creditsError, setCreditsError] = useState('');
 
   // Fetch genres from Firestore (from misc/system document)
   useEffect(() => {
@@ -107,7 +113,7 @@ const CreateScreen = () => {
       console.error('Error picking/cropping image:', error);
     }
   };
-  
+
 
   // Audio file picker (only audio types allowed)
   const pickAudio = async () => {
@@ -160,6 +166,14 @@ const CreateScreen = () => {
       return;
     }
 
+    // Check if user has enough credits (must have at least 5)
+    if (userData.credits < 5) {
+      setCreditsError('Not enough credits');
+      return;
+    } else {
+      setCreditsError('');
+    }
+
     setIsSubmitting(true);
     try {
       // Create a new track document reference (so we can use its ID for Storage paths)
@@ -173,6 +187,12 @@ const CreateScreen = () => {
         if (!userDoc.exists()) {
           throw new Error('User document does not exist!');
         }
+        const currentCredits = userDoc.data().credits || 0;
+        if (currentCredits < 5) {
+          throw new Error('Not enough credits');
+        }
+        const newCredits = currentCredits - 5;
+
         // Prepare track data
         const trackData = {
           artist: uid,
@@ -187,9 +207,10 @@ const CreateScreen = () => {
         };
 
         transaction.set(trackDocRef, trackData);
-        // Example: add track ID to user's tracks array (if it exists)
+        // Update user's tracks array and deduct credits
         transaction.update(userRef, {
           tracks: [...(userDoc.data().tracks || []), trackId],
+          credits: newCredits,
         });
       });
 
@@ -222,7 +243,8 @@ const CreateScreen = () => {
         url: audioUrl,
       });
 
-      Alert.alert('Success', 'Track uploaded successfully!');
+      navigation.goBack()
+
       // Clear fields
       setArtwork(null);
       setArtworkBlob(null);
@@ -255,6 +277,12 @@ const CreateScreen = () => {
         }
       />
       <ScrollView contentContainerStyle={styles.content}>
+
+        {/* Display credits error if user doesn't have enough credits */}
+        {userData.credits < 5 && (
+          <Text style={styles.creditsError}>Not enough credits</Text>
+        )}
+
         {/* Artwork Uploader */}
         <TouchableOpacity style={styles.artworkContainer} onPress={pickImage}>
           {artwork ? (
@@ -420,5 +448,10 @@ const styles = StyleSheet.create({
   audioUploaderText: {
     color: '#e3e3e3',
     fontSize: 16,
+  },
+  creditsError: {
+    color: '#ff4d4d',
+    fontSize: 16,
+    marginBottom: 10,
   },
 });
