@@ -1,46 +1,48 @@
-// Playlist.js
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
 import SongRow from '../components/SongRow';
 import Header from '../components/Header';
 
 const Playlist = ({ route }) => {
-  // Safely destructure route.params (defaulting to an empty object if undefined)
+  // Destructure route.params safely with defaults
   const {
     isLiked = false,
     myLiked = [],
     trackList = [],
     title = "Playlist",
   } = route.params || {};
-console.log("GEnre", title, trackList);
+
+  const data = isLiked ? myLiked : trackList;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#121212' }}>
-      <Header isGoBack={true} title={isLiked ? "Liked" : title} />
-      <View style={styles.container}>
-        {isLiked ? (
-          <ScrollView style={{ width: '100%' }}>
-            {myLiked.map((trackId, index) => (
-              <SongRow key={index} trackId={trackId} playlist={myLiked} />
-            ))}
-          </ScrollView>
-        ) : (
-          <ScrollView style={{ width: '100%' }}>
-            {trackList.map((trackId, index) => (
-              <SongRow key={index} trackId={trackId} playlist={trackList} />
-            ))}
-          </ScrollView>
-        )}
-      </View>
+    <View style={styles.screen}>
+      <Header isGoBack={true} title={isLiked ? "Liked Songs" : title} />
+      <FlatList
+        data={data}
+        keyExtractor={(trackId, index) => trackId || index.toString()} // Ensure a unique key
+        renderItem={({ item }) => <SongRow trackId={item} playlist={data} />}
+        ListEmptyComponent={<Text style={styles.noResults}>No songs found.</Text>}
+        ListFooterComponent={<View style={{ height: 100 }} />} // Adds bottom spacing
+        contentContainerStyle={styles.listContainer}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
+    backgroundColor: '#121212',
+  },
+  listContainer: {
     padding: 10,
     alignItems: 'center',
+    alignItems: 'left',
+  },
+  noResults: {
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 

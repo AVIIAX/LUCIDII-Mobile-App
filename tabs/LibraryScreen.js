@@ -6,6 +6,7 @@ import {
   TouchableNativeFeedback,
   ScrollView,
   Dimensions,
+  Platform,
 } from 'react-native';
 import Header from '../components/Header';
 import { db } from '../firebase';
@@ -19,7 +20,7 @@ const BORDER_COLORS = [
 ];
 
 const screenWidth = Dimensions.get('window').width;
-const tileWidth = (screenWidth / 2) - 16; // Two columns with spacing
+const tileWidth = (screenWidth / 2) - 20; // Two columns with spacing
 
 const LibraryScreen = () => {
   const navigation = useNavigation();
@@ -86,7 +87,11 @@ const LibraryScreen = () => {
           params: { trackList: genreTracks, title: genreName, isLiked: false },
         })}
       >
-        <View style={[styles.genreTile, { height, borderColor }]}>
+        <View style={[styles.genreTile, { height, borderColor, shadowColor: borderColor }]}>
+          {/* Neon Glow Layer (Behind Text) */}
+          <Text style={[styles.glowText, { color: borderColor }]}>{genreName}</Text>
+
+          {/* Main Text */}
           <Text style={styles.genreName}>{genreName}</Text>
           <Text style={styles.genreCount}>{trackCount} songs</Text>
         </View>
@@ -99,6 +104,8 @@ const LibraryScreen = () => {
       <Header title="Library" />
       <ScrollView contentContainerStyle={styles.tileWrapper}>
         {genres.map((genreName) => renderGenreTile(genreName))}
+
+        <View style={{ width: '100%', height: 200 }} />
       </ScrollView>
     </View>
   );
@@ -113,27 +120,42 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    padding: 8,
+    padding: 10,
   },
   genreTile: {
-    width: tileWidth, // Ensures two tiles per row
+    width: tileWidth,
     borderWidth: 2,
-    borderRadius: 10,
-    marginBottom: 8, // Space between rows
+    borderRadius: 15,
+    marginBottom: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
+    padding: 12,
   },
   genreName: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 18,
     textAlign: 'center',
+    
+    // Text Glow Effect
+    textShadowColor: 'rgba(255, 255, 255, 0.17)',
+    textShadowRadius: 8,
+    textShadowOffset: { width: 0, height: 0 },
   },
   genreCount: {
     color: '#aaa',
     fontSize: 14,
     marginTop: 5,
+  },
+  glowText: {
+    position: 'absolute',
+    fontSize: 24,
+    fontWeight: 'bold',
+    opacity: 0.1,
+
+    // Stronger Glow Effect for Text
+    textShadowRadius: 20,
+    textShadowOffset: { width: 0, height: 0 },
   },
 });
 
