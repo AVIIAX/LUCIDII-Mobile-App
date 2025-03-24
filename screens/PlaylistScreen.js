@@ -5,46 +5,42 @@ import SongRow from '../components/SongRow';
 import Header from '../components/Header';
 
 const Playlist = ({ route }) => {
-  // Access the isLiked parameter from the route
-  const { isLiked } = route.params;
-  const { myLiked } = route.params;
-
-  if (isLiked && myLiked) {
-    // Fetch liked tracks
-    console.log(myLiked);
-  }
+  // Safely destructure route.params (defaulting to an empty object if undefined)
+  const {
+    isLiked = false,
+    myLiked = [],
+    trackList = [],
+    title = "Playlist",
+  } = route.params || {};
+console.log("GEnre", title, trackList);
 
   return (
-    <View>
-    <Header isGoBack={true} title="Liked"/>
-    <View style={styles.container}>
-
-      {isLiked ? (
-        <ScrollView style={{ width: '100%' }}>
-          {myLiked.map((trackId, index) => (
-            <SongRow key={index} trackId={trackId} playlist={myLiked} />
-          ))}
-        </ScrollView>
-      ) : (
-        <Text style={styles.text}>This is the Default Playlist view.</Text>
-      )}
-    </View>
+    <View style={{ flex: 1, backgroundColor: '#121212' }}>
+      <Header isGoBack={true} title={isLiked ? "Liked" : title} />
+      <View style={styles.container}>
+        {isLiked ? (
+          <ScrollView style={{ width: '100%' }}>
+            {myLiked.map((trackId, index) => (
+              <SongRow key={index} trackId={trackId} playlist={myLiked} />
+            ))}
+          </ScrollView>
+        ) : (
+          <ScrollView style={{ width: '100%' }}>
+            {trackList.map((trackId, index) => (
+              <SongRow key={index} trackId={trackId} playlist={trackList} />
+            ))}
+          </ScrollView>
+        )}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#121212',
+    flex: 1,
     padding: 10,
-  },
-  text: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
+    alignItems: 'center',
   },
 });
 
