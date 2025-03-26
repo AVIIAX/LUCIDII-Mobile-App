@@ -8,7 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import GoBackArrow from "./GoBackArrow ";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
-const Header = ({ isGoBack, isProEle = true, title, extraEle }) => {
+const Header = ({ isGoBack, isProEle = true, isMail = true, title, extraEle }) => {
   const { userData } = useContext(UserContext);
   const navigation = useNavigation();
 
@@ -52,7 +52,8 @@ const Header = ({ isGoBack, isProEle = true, title, extraEle }) => {
               <FontAwesome5 name="coins" size={20} color="#e3e3e3" />
             </Pressable>
 
-            <Pressable 
+            {isMail && (
+              <Pressable 
               style={styles.mailContainer}
               onPress={() => navigation.navigate("MailBox", { isMy: true })}
             >
@@ -61,6 +62,8 @@ const Header = ({ isGoBack, isProEle = true, title, extraEle }) => {
                 <View style={styles.redDot} />
               )}
             </Pressable>
+            ) 
+            }
           </>
         )}
       </View>

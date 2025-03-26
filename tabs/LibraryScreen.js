@@ -12,6 +12,7 @@ import Header from '../components/Header';
 import { db } from '../firebase';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const BORDER_COLORS = [
   '#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF',
@@ -101,7 +102,19 @@ const LibraryScreen = () => {
 
   return (
     <View style={styles.screenContainer}>
-      <Header title="Library" />
+      <Header isMail={false} title="Library" />
+
+      <View style={{ paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginVertical: 10 }}>
+        <TouchableNativeFeedback onPress={() => navigation.navigate('LocalList')}>
+          <View style={styles.cardWrapper}>
+            <View style={styles.iconWrapper}>
+              <MaterialCommunityIcons name="playlist-music" size={28} color="#e3e3e3" />
+            </View>
+            <Text style={styles.cardText}>Local Tracks</Text>
+          </View>
+        </TouchableNativeFeedback>
+      </View>
+
       <ScrollView contentContainerStyle={styles.tileWrapper}>
         {genres.map((genreName) => renderGenreTile(genreName))}
 
@@ -136,7 +149,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
     textAlign: 'center',
-    
+
     // Text Glow Effect
     textShadowColor: 'rgba(255, 255, 255, 0.17)',
     textShadowRadius: 8,
@@ -156,6 +169,28 @@ const styles = StyleSheet.create({
     // Stronger Glow Effect for Text
     textShadowRadius: 20,
     textShadowOffset: { width: 0, height: 0 },
+  },
+
+  cardWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    flex: 1,
+    marginVertical: 8,
+    backgroundColor: "#202020",
+    borderRadius: 4,
+    paddingHorizontal: 10,
+  },
+  iconWrapper: {
+    width: 55,
+    height: 55,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cardText: {
+    color: "#e3e3e3",
+    fontSize: 13,
+    fontWeight: "bold",
   },
 });
 

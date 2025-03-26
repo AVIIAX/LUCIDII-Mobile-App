@@ -161,7 +161,9 @@ const HomeScreen = () => {
 
           {/* My Tracks */}
           {userData?.artist ? (
-            <TouchableNativeFeedback onPress={() => navigation.navigate("Playlist", { isMy: true })}>
+            <TouchableNativeFeedback
+             onPress={() => navigation.navigate("Playlist", { isLiked: false, trackList: userData?.tracks, title:"Your Tracks" })}
+            >
               <View style={styles.cardWrapper}>
                 <View style={styles.iconWrapper}>
                   <Text><MaterialCommunityIcons name="bookshelf" size={28} color="#e3e3e3" /></Text>

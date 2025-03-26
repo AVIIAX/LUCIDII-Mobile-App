@@ -130,7 +130,7 @@ const ProfileScreen = ({ route }) => {
 
   return (
     <View style={styles.screenContainer}>
-      <Header isGoBack={false} title={"Profile"} />
+      <Header isGoBack={false} title={"Profile"} isMail={false} />
       <ScrollView
         contentContainerStyle={styles.container}
         refreshControl={
@@ -253,7 +253,7 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
-    backgroundColor: "#111111",
+    backgroundColor: "#171717",
   },
   container: {
     alignItems: "center",
@@ -351,7 +351,9 @@ const styles = StyleSheet.create({
   button: {
     width: "50%",
     height: 50,
-    backgroundColor: "#3d3d3d",
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: '#d24b4b',
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",

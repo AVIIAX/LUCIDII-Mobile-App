@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useContext } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, ImageBackground, Pressable } from "react-native";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { View, Text, StyleSheet, ActivityIndicator, ImageBackground, Pressable, Animated } from "react-native";
 import { useAudioPlayer } from "../AudioPlayer";
 import { db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { Audio } from "expo-av";
-import Feather from '@expo/vector-icons/Feather';
-import Entypo from '@expo/vector-icons/Entypo';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import { UserContext } from "../UserContext";
-
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { ToastAndroid } from 'react-native';
 
 // Function to fetch track duration using expo-av
 const getTrackDuration = async (url) => {
@@ -72,21 +72,24 @@ const Banner = ({ trackId }) => {
   const { currentTrack, isPlaying, playOrPauseSong, loadSong, toggleLike } = useAudioPlayer();
   const [track, setTrack] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const isThisTrackPlaying = currentTrack && currentTrack.id === track?.id && isPlaying;
   const [isLiked, setIsLiked] = useState(false);
+  const scale = useRef(new Animated.Value(1)).current; // To animate the heart icon
+
+  const isThisTrackPlaying = currentTrack && currentTrack.id === track?.id && isPlaying;
 
   const trackIdToUse = (typeof trackId === 'object' && trackId.id) || trackId;
 
+  const [lastTap, setLastTap] = useState(0);  // Time of last tap
+
   useEffect(() => {
     setTrack(null);
-    setIsLoading(false);
+    setIsLoading(true);
 
     if (trackIdToUse) {
       const fetchTrack = async () => {
         const trackData = await getTrack(trackIdToUse);
         if (trackData) {
           setTrack(trackData);
-          setIsLiked(trackData.liked?.includes(uid)); // Update like state
           setIsLoading(false);
         } else {
           setIsLoading(false);
@@ -98,10 +101,55 @@ const Banner = ({ trackId }) => {
     }
   }, [trackIdToUse, uid]);
 
+  useEffect(() => {
+    // Firestore listener to update isLiked in real-time
+    if (track && track.id) {
+      const trackRef = doc(db, 'track', track.id);
+
+      const unsubscribe = onSnapshot(trackRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const updatedTrackData = docSnap.data();
+          setIsLiked(updatedTrackData.liked?.includes(uid)); // Listen for changes to "liked" field
+        }
+      });
+
+      return () => unsubscribe(); // Cleanup listener on component unmount
+    }
+  }, [track, uid]);
+
   const handleToggleLike = async () => {
     if (!trackIdToUse || !uid) return;
+    
+    // Trigger scale animation on like press
+    Animated.sequence([
+      Animated.spring(scale, {
+        toValue: 1.2, // Enlarge the heart
+        friction: 3,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scale, {
+        toValue: 1, // Shrink back to original size
+        friction: 3,
+        useNativeDriver: true,
+      })
+    ]).start();
+
     await toggleLike(trackIdToUse, uid);
-    setIsLiked(!isLiked); // Optimistically update UI
+
+    // Show toast message after the like action
+    await ToastAndroid.show('You liked this track!', ToastAndroid.SHORT);
+  };
+
+  const handleDoubleTapLike = () => {
+    const currentTime = Date.now();
+    const timeDifference = currentTime - lastTap;
+
+    if (timeDifference < 300) { // Double-tap threshold (300ms)
+      if (isLiked) return;  // Prevent toggling if already liked
+      handleToggleLike();  // Toggle the like state
+    }
+
+    setLastTap(currentTime);  // Update the last tap time
   };
 
   if (isLoading) {
@@ -112,68 +160,58 @@ const Banner = ({ trackId }) => {
     );
   }
 
-  // This function will only load the song once when needed
   const handlePress = () => {
     if (isThisTrackPlaying) {
-      // If the track is playing, pause it
-      playOrPauseSong();
+      playOrPauseSong(); // Pause the song if it's playing
     } else {
-      // If it's not playing, either load it if it's a new track or just play/pause
       if (!currentTrack || currentTrack.id !== track.id) {
-        loadSong(track);  // Load a new song when necessary
+        loadSong(track); // Load new song if it's not the current one
       } else {
-        playOrPauseSong();  // Toggle play/pause
+        playOrPauseSong(); // Toggle play/pause
       }
     }
   };
 
   return (
-    <ImageBackground
-      source={{ uri: track?.image }}
-      style={styles.Banner}
-      imageStyle={styles.backgroundImage}
-    >
-      <View style={styles.overlay}>
-        <Text style={styles.BannerTextMain}>{track?.name || "Track Name"}</Text>
-        <Text style={styles.BannerTextSub}>{track?.artistName || "Unknown Artist"}</Text>
+    <Pressable onPress={handleDoubleTapLike}> 
+      <ImageBackground 
+        source={{ uri: track?.image }}
+        style={styles.Banner}
+        imageStyle={styles.backgroundImage}
+      >
+        <View style={styles.overlay}>
+          <Text style={styles.BannerTextMain}>{track?.name || "Track Name"}</Text>
+          <Text style={styles.BannerTextSub}>{track?.artistName || "Unknown Artist"}</Text>
 
-        <View style={{
-          flexDirection: 'row',
-          gap: 20
-        }}>
+          <View style={{ flexDirection: 'row', gap: 20 }}>
+            <Pressable onPress={handlePress} style={styles.infoContainer}>
+              {isThisTrackPlaying ? (
+                <Ionicons name="pause-outline" size={40} color="#e3e3e3" />
+              ) : (
+                <Ionicons name="play-outline" size={40} color="#e3e3e3" />
+              )}
+            </Pressable>
 
-          <Pressable onPress={handlePress} style={styles.infoContainer}>
-            {isThisTrackPlaying ? (
-              <Feather name="pause" size={40} color="#e3e3e391" />
-            ) : (
-              <Feather name="play" size={40} color="#e3e3e391" />
-            )}
+            {/* Animated Heart Icon */}
+            <Pressable onPress={handleToggleLike} style={styles.infoContainer}>
+              <Animated.View style={{ transform: [{ scale }] }}>
+                {isLiked ? (
+                  <AntDesign name="heart" size={30} color="#e3e3e3" />
+                ) : (
+                  <AntDesign name="hearto" size={30} color="#e3e3e3" />
+                )}
+              </Animated.View>
+            </Pressable>
 
-          </Pressable>
-
-          <Pressable onPress={handleToggleLike} style={styles.infoContainer}>
-            {isLiked ? (
-              <Entypo name="heart" size={40} color="#e3e3e391" />
-            ) : (
-              <Entypo name="heart-outlined" size={40} color="#e3e3e391" />
-            )}
-          </Pressable>
-
-
-          <View style={{
-            justifyContent: 'center'
-          }}>
-            <Text style={styles.infoText}>
-              {track ? track.views : '00'} · {track && track.liked ? track.liked.length : '00'}
-            </Text>
+            <View style={{ justifyContent: 'center' }}>
+              <Text style={styles.infoText}>
+                {track ? track.views : '00'} · {track && track.liked ? track.liked.length : '00'}
+              </Text>
+            </View>
           </View>
-
         </View>
-
-
-
-      </View>
-    </ImageBackground>
+      </ImageBackground>
+    </Pressable>
   );
 };
 

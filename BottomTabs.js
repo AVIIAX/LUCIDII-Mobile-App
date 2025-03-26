@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Entypo, Ionicons, AntDesign } from "@expo/vector-icons";
 import HomeStack from "./stacks/HomeStack"; // Using the nested HomeStack
 import SearchStack from "./stacks/SearchStack";
-import LibraryScreen from "./tabs/LibraryScreen";
+import LibraryStack from "./stacks/LibraryStack";
 import UserProfileScreen from "./tabs/UserProfileScreen";
 import SearchScreen from "./tabs/SearchScreen";
 import { UserContext } from "./UserContext";
@@ -83,8 +83,8 @@ const BottomTabs = () => {
           }}
         />
         <Tab.Screen
-          name="Library"
-          component={LibraryScreen}
+          name="LibraryTab"
+          component={LibraryStack}
           options={{
             tabBarIcon: ({ focused }) =>
               focused ? (
