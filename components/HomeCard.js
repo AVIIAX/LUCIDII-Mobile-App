@@ -76,6 +76,16 @@ const HomeCard = ({ trackId, playList }) => {
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
               <View style={styles.modalContainer}>
+              <TouchableOpacity onPress={() => { handleToggleLike(), setModalVisible(false); }}>
+                  {isLiked ? 
+                    <Text style={styles.modalOption}>
+                    <Text  style={styles.boostText}>BOOST</Text> This Track</Text>
+                    :
+                    <Text style={styles.modalOption}>
+                    <Text  style={styles.boostText}>BOOST</Text> This Track</Text>
+                    }
+                </TouchableOpacity>
+
                 <TouchableOpacity onPress={() => { handleToggleLike(), setModalVisible(false); }}>
                   {isLiked ? 
                     <Text style={styles.modalOption}>Remove From Favorites</Text>
@@ -180,6 +190,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 10,
   },
+  boostText: {
+    backgroundColor: '#4b9ad2bd',
+    padding: 1,
+    borderRadius: 25,
+    
+  }
 });
 
 export default HomeCard;
