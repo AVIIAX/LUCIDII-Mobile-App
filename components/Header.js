@@ -47,9 +47,9 @@ const Header = ({ isGoBack, isProEle = true, isMail = true, title, extraEle }) =
               </Pressable>
             )}
 
-            <Pressable style={styles.creditsContainer} onPress={() => navigation.navigate("MailBox", { isMy: true })}>
+            <Pressable style={styles.creditsContainer} onPress={() => navigation.navigate("Shop", { isMy: true })}>
               <Text style={styles.creditsText}>{userData.credits}</Text>
-              <FontAwesome5 name="coins" size={20} color="#e3e3e3" />
+              <MaterialCommunityIcons name="circle-multiple" size={24} color="#e3e3e3" />
             </Pressable>
 
             {isMail && (
