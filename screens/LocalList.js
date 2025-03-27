@@ -34,6 +34,7 @@ const LocalList = ({ route }) => {
           id: asset.id,
           name: asset.filename,
           uri: asset.uri, // This is the URI to the file
+          artist: asset.artist,
           duration: asset.duration,
         }));
 
@@ -62,11 +63,12 @@ const LocalList = ({ route }) => {
     <TouchableOpacity onPress={() => handlePress(track)} style={styles.trackItem}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Image
-          source={{ uri: 'https://atlast.fm/images/no-artwork.jpg' }} // You can use a default image or extract album art from the track
+          source={{ uri:  'https://atlast.fm/images/no-artwork.jpg' }} // You can use a default image or extract album art from the track
           style={styles.cardImage}
         />
         <View style={{ marginLeft: 10 }}>
           <Text style={styles.trackName}>{track.name || 'Unknown Track'}</Text>
+          <Text style={styles.trackDuration}>{track?.Artist }</Text>
           <Text style={styles.trackDuration}>
             {track.duration ? `${Math.floor(track.duration / 60)}:${Math.floor(track.duration % 60)}` : '00:00'}
           </Text>
