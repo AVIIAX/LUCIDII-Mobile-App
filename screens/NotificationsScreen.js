@@ -1,4 +1,4 @@
-import { 
+import {
   FlatList,
   StyleSheet,
   Text,
@@ -8,29 +8,32 @@ import {
   Modal,
   TextInput,
   Button,
-  RefreshControl
+  RefreshControl,
+  Pressable
 } from 'react-native';
 import React, { useContext, useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { UserContext } from '../UserContext';
 import { db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useNavigation } from '@react-navigation/native';
 
 const NotificationsScreen = () => {
   const { userData } = useContext(UserContext);
-  
+  const navigation = useNavigation();
+
   // Convert inboxMails to an array that includes the key.
   const initialMails = userData.inboxMails
     ? Object.entries(userData.inboxMails)
-        .map(([key, mail]) => ({ key, ...mail }))
-        // Sort by time descending (newest first)
-        .sort((a, b) => {
-          const aTime = a.time?.toDate ? a.time.toDate() : new Date(a.time);
-          const bTime = b.time?.toDate ? b.time.toDate() : new Date(b.time);
-          return bTime - aTime;
-        })
+      .map(([key, mail]) => ({ key, ...mail }))
+      // Sort by time descending (newest first)
+      .sort((a, b) => {
+        const aTime = a.time?.toDate ? a.time.toDate() : new Date(a.time);
+        const bTime = b.time?.toDate ? b.time.toDate() : new Date(b.time);
+        return bTime - aTime;
+      })
     : [];
-  
+
   // Local state for mails (so we can refresh independently)
   const [mails, setMails] = useState(initialMails);
   const [expandedMail, setExpandedMail] = useState(null);
@@ -157,33 +160,69 @@ const NotificationsScreen = () => {
         <TouchableNativeFeedback onPress={() => toggleMessageVisibility(index)}>
           <View>
             {item.type === 'follower' ? (
-              <View style={styles.mailContent}>
+
+              <Pressable style={styles.mailContent}
+                onPress={() => {
+                  navigation.navigate("SearchTab", {
+                    screen: "ArtistProfile",
+                    params: { userId: item?.follower }
+                  })
+                }}
+              >
                 <Image source={{ uri: senderAvatar }} style={styles.senderImage} />
                 <Text style={styles.mailSubject}>
                   {senderName} Started Following You!
                 </Text>
-              </View>
-            ) : item.type === 'system' && item.status === 'accepted' ? (
-              <View style={styles.mailContent}>
+              </Pressable>
+
+            ) 
+            :
+             item.type === 'system' && item.status === 'accepted' ? (
+              <Pressable 
+              onPress={() => {
+                navigation.navigate("SearchTab", {
+                    screen: "ArtistProfile",
+                    params: { userId: item?.from }
+                  })
+              }}
+               style={styles.mailContent}>
                 <Image source={{ uri: senderAvatar }} style={styles.senderImage} />
                 <Text style={[styles.mailSubject, { color: '#5ec57b' }]}>
                   {senderName} Accepted Your Request!
                 </Text>
-              </View>
-            ) : item.type === 'system' && item.status === 'rejected' ? (
-              <View style={styles.mailContent}>
+              </Pressable>
+            ) 
+            : 
+            item.type === 'system' && item.status === 'rejected' ? (
+              <Pressable 
+              onPress={() => {
+                navigation.navigate("SearchTab", {
+                    screen: "ArtistProfile",
+                    params: { userId: item?.from }
+                  })
+              }}
+               style={styles.mailContent}>
                 <Image source={{ uri: senderAvatar }} style={styles.senderImage} />
                 <Text style={[styles.mailSubject, { color: '#c55e5e' }]}>
                   {senderName} Rejected Your Request!
                 </Text>
-              </View>
-            ) : item.type === 'collab' && item.status === 'waiting' ? (
-              <View style={styles.mailContent}>
+              </Pressable>
+            )
+             : 
+             item.type === 'collab' && item.status === 'waiting' ? (
+              <Pressable 
+              onPress={() => {
+                navigation.navigate("SearchTab", {
+                    screen: "ArtistProfile",
+                    params: { userId: item?.from }
+                  })
+              }}
+               style={styles.mailContent}>
                 <Image source={{ uri: senderAvatar }} style={styles.senderImage} />
                 <Text style={[styles.mailSubject, { color: '#5e85c5' }]}>
                   {senderName} Sent You A Collab Request!
                 </Text>
-              </View>
+              </Pressable>
             ) : null}
 
             <Text style={styles.mailBody}>

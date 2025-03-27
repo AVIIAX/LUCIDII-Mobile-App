@@ -15,6 +15,7 @@ const PremiumCard = () => {
   const [featuresOpen, setFeaturesOpen] = useState(false);
 
   const premiumFeatures = [
+    'Cuz Why Not LOL',
     'Ad-free Experience',
     '25 Credits Monthly',
     'Extended Music Player',
@@ -42,7 +43,7 @@ const PremiumCard = () => {
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <Text style={styles.cardHeaderText}>Buy Premium</Text>
+        <Text style={styles.cardHeaderText}>Buy PRO</Text>
         <MaterialCommunityIcons name="chess-knight" size={30} color="#FFF" />
       </View>
 

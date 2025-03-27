@@ -21,6 +21,7 @@ import Header from '../components/Header';
 import { UserContext } from '../UserContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { ToastAndroid } from 'react-native';
 
 const EditProfile = () => {
   const { userData, uid } = useContext(UserContext);
@@ -142,9 +143,10 @@ const EditProfile = () => {
 
       await updateDoc(userRef, updateData);
       navigation.goBack()
+      ToastAndroid.show('Profile Updated', ToastAndroid.SHORT);
     } catch (error) {
       console.error('Error updating profile:', error);
-      Alert.alert('Error', 'Profile update failed. Please try again.');
+      ToastAndroid.show(' Something Went Wrong. Try Again', ToastAndroid.SHORT);
     } finally {
       setIsSubmitting(false);
     }

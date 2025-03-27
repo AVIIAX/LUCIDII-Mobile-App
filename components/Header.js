@@ -41,13 +41,13 @@ const Header = ({ isGoBack, isProEle = true, isMail = true, title, extraEle }) =
             {userData?.isPro ? (
               <MaterialCommunityIcons name="chess-knight" size={24} color="#e3e3e3" />
             ) : (
-              <Pressable style={styles.proContainer}>
+              <Pressable style={styles.proContainer} onPress={() => navigation.navigate("Shop")}>
                 <Text style={[styles.rightText, { color: "#f7b1b1" }]}>Get PRO</Text>
                 <Ionicons name="diamond-outline" size={24} color="#bbb1f7" />
               </Pressable>
             )}
 
-            <Pressable style={styles.creditsContainer} onPress={() => navigation.navigate("Shop", { isMy: true })}>
+            <Pressable style={styles.creditsContainer} onPress={() => navigation.navigate("Shop")}>
               <Text style={styles.creditsText}>{userData.credits}</Text>
               <MaterialCommunityIcons name="circle-multiple" size={24} color="#e3e3e3" />
             </Pressable>

@@ -32,6 +32,7 @@ import Header from '../components/Header';
 import { UserContext } from '../UserContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { ToastAndroid } from 'react-native';
 
 const CreateScreen = () => {
   const { userData, uid } = useContext(UserContext);
@@ -244,7 +245,7 @@ const CreateScreen = () => {
       });
 
       navigation.goBack()
-
+      ToastAndroid.show('Track Uploaded!', ToastAndroid.SHORT);
       // Clear fields
       setArtwork(null);
       setArtworkBlob(null);
@@ -254,7 +255,7 @@ const CreateScreen = () => {
       setAudioFile(null);
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Track upload failed. Please try again.');
+      ToastAndroid.show('Something Went Wrong. Try Again', ToastAndroid.SHORT);
     } finally {
       setIsSubmitting(false);
     }

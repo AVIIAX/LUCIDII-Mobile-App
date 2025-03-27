@@ -234,7 +234,7 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
-    backgroundColor: "#171717",
+    backgroundColor: "black",
   },
   container: {
     alignItems: "center",
