@@ -1,32 +1,46 @@
 // screens/LoginScreen.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
-  View,
   Image,
   TextInput,
   TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
   Platform,
+  View,
   Pressable,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-} from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
+import * as Google from "expo-auth-session/providers/google";
 import { auth } from "../firebase"; // Ensure firebase is correctly configured
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
+  const authInstance = getAuth();
+
+  // Expo Google authentication request
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    clientId: "YOUR_GOOGLE_CLIENT_ID", // Replace with your client ID
+  });
+
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { id_token } = response.params;
+      const credential = GoogleAuthProvider.credential(id_token);
+      signInWithCredential(authInstance, credential)
+        .then(() => navigation.navigate("Home"))
+        .catch((error) => {
+          Alert.alert("Google Sign-In Error", error.message);
+        });
+    }
+  }, [response]);
 
   // Email/Password login
   const handleLogin = () => {
@@ -34,26 +48,16 @@ const LoginScreen = () => {
       Alert.alert("Error", "Please enter both email and password");
       return;
     }
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        navigation.navigate("Home");
-      })
+    signInWithEmailAndPassword(authInstance, email, password)
+      .then(() => navigation.navigate("Home"))
       .catch((error) => {
         Alert.alert("Login Error", error.message);
       });
   };
 
-  // Google sign-in
-  const signInWithGoogle = async () => {
-    const authInstance = getAuth();
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(authInstance, provider);
-      // Optional: update Firestore data if needed
-      navigation.navigate("Home");
-    } catch (error) {
-      Alert.alert("Google Sign-In Error", error.message);
-    }
+  // Trigger Google prompt
+  const signInWithGoogle = () => {
+    promptAsync();
   };
 
   return (
@@ -63,13 +67,11 @@ const LoginScreen = () => {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.innerContainer}
         >
-          <View style={styles.logoContainer}>
-            <Image
-              style={styles.logo}
-              source={require("../assets/logo.png")} // Ensure the logo is in the assets folder
-              resizeMode="contain"
-            />
-          </View>
+          <Image
+            style={styles.logo}
+            source={require("../assets/logo.png")} // Ensure the logo exists in assets folder
+            resizeMode="contain"
+          />
           <Text style={styles.title}>Login</Text>
           <TextInput
             placeholder="Email"
@@ -91,18 +93,15 @@ const LoginScreen = () => {
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Sign In</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.googleButton} onPress={signInWithGoogle}>
+          <TouchableOpacity style={styles.googleButton} onPress={signInWithGoogle} disabled={!request}>
             <Text style={styles.googleButtonText}>Sign In with Google</Text>
           </TouchableOpacity>
         </KeyboardAvoidingView>
 
-        <View style={styles.switchAuth}>
-          <Text style={styles.switchAuthText}>Don't Have An Account?</Text>
-          <Pressable
-            onPress={() => navigation.navigate("Register")}
-            style={styles.switchAuthButton}
-          >
-            <Text style={styles.switchAuthButtonText}>Register</Text>
+        <View style={styles.switchAuthContainer}>
+          <Text style={styles.switchAuthInfo}>Don't have an account?</Text>
+          <Pressable onPress={() => navigation.navigate("Register")}>
+            <Text style={styles.switchAuthAction}> Register</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -113,32 +112,11 @@ const LoginScreen = () => {
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  innerContainer: {
-    alignItems: "center",
-  },
-  logoContainer: {
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  logo: {
-    width: 200,
-    height: 50,
-  },
-  title: {
-    fontSize: 32,
-    color: "white",
-    marginBottom: 30,
-    fontWeight: "bold",
-  },
+  container: { flex: 1 },
+  safeArea: { flex: 1, justifyContent: "center", paddingHorizontal: 20 },
+  innerContainer: { alignItems: "center" },
+  logo: { width: 200, height: 50, marginBottom: 20 },
+  title: { fontSize: 32, color: "white", marginBottom: 30, fontWeight: "bold" },
   input: {
     width: "100%",
     height: 50,
@@ -159,10 +137,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 10,
   },
-  buttonText: {
-    color: "white",
-    fontSize: 18,
-  },
+  buttonText: { color: "white", fontSize: 18 },
   googleButton: {
     width: "100%",
     height: 50,
@@ -174,28 +149,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 10,
   },
-  googleButtonText: {
-    color: "white",
-    fontSize: 18,
-  },
-  switchAuth: {
-    marginTop: 15,
-    padding: 10,
+  googleButtonText: { color: "white", fontSize: 18 },
+  switchAuthContainer: {
     flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
-    justifyContent: 'center',
-    width: '100%',
+    marginTop: 20,
   },
-  switchAuthText: {
-    color: "#e3e3e3",
-    fontSize: 18,
-    textAlign: 'center'
-  },
-  switchAuthButton: {},
-  switchAuthButtonText: {
-    color: "#63ab69",
-    fontSize: 18,
-    marginLeft: 5,
-    textAlign: 'center'
-  },
+  switchAuthInfo: { color: "#e3e3e3", fontSize: 18 },
+  switchAuthAction: { color: "#63ab69", fontSize: 18 },
 });
