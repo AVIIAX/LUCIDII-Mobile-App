@@ -4,10 +4,11 @@ import * as MediaLibrary from 'expo-media-library';
 import * as Permissions from 'expo-permissions';  // Import permissions
 import { useAudioPlayer } from '../AudioPlayer';
 import Header from '../components/Header';
+import Entypo from '@expo/vector-icons/Entypo';
 
 const LocalList = ({ route }) => {
   const [audioFiles, setAudioFiles] = useState([]);
-  const { loadSong } = useAudioPlayer(); // Using the loadSong function from AudioPlayerContext
+  const { loadSong, isPlaying, currentTrack } = useAudioPlayer(); // Using the loadSong function from AudioPlayerContext
   const [permissionStatus, setPermissionStatus] = useState(null);
 
   // Request permission to access media files
@@ -59,23 +60,36 @@ const LocalList = ({ route }) => {
   };
 
   // Render each audio file in the list
-  const renderTrack = ({ item: track }) => (
+const renderTrack = ({ item: track }) => {
+  const isThisTrackPlaying = currentTrack && currentTrack.id === track?.id && isPlaying;
+  
+  return (
     <TouchableOpacity onPress={() => handlePress(track)} style={styles.trackItem}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Image
-          source={{ uri:  'https://atlast.fm/images/no-artwork.jpg' }} // You can use a default image or extract album art from the track
+          source={{ uri: 'https://atlast.fm/images/no-artwork.jpg' }} // You can use a default image or extract album art from the track
           style={styles.cardImage}
         />
         <View style={{ marginLeft: 10 }}>
           <Text style={styles.trackName}>{track.name || 'Unknown Track'}</Text>
-          <Text style={styles.trackDuration}>{track?.Artist }</Text>
+          <Text style={styles.trackDuration}>{track?.Artist}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {isThisTrackPlaying ? (
+              <Entypo name="controller-paus" size={15} color="#e3e3e3" />
+            ) : (
+              <Entypo name="controller-play" size={15} color="#e3e3e3" />
+            )}
+         
+          </View>
           <Text style={styles.trackDuration}>
-            {track.duration ? `${Math.floor(track.duration / 60)}:${Math.floor(track.duration % 60)}` : '00:00'}
+            {track.duration ? track.duration : '00:00'}
           </Text>
         </View>
       </View>
     </TouchableOpacity>
   );
+};
+
 
   if (permissionStatus !== 'granted') {
     return (
@@ -128,6 +142,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#e3e3e3',
     letterSpacing: 2,
+    maxHeight: 30
   },
   trackDuration: {
     color: 'gray',

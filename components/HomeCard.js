@@ -14,12 +14,15 @@ import { db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { UserContext } from "../UserContext";
 import { useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
+import BoostButton from '../components/BoostButton';
 
 const HomeCard = ({ trackId, playList }) => {
   const { uid } = useContext(UserContext);
   const { loadSong, playOrPauseSong, isPlaying, currentTrack, toggleLike } = useAudioPlayer();
   const [modalVisible, setModalVisible] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [isMine, setIsMine] = useState(false);
   const navigation = useNavigation();
 
   const track = playList.find((track) => track.id === trackId);
@@ -29,6 +32,10 @@ const HomeCard = ({ trackId, playList }) => {
 
   useEffect(() => {
     setIsLiked(track.liked?.includes(uid)); // Update like state
+  }, [track, uid]);
+
+  useEffect(() => {
+    setIsMine(track?.artist == uid); // Update like state
   }, [track, uid]);
 
   const handleToggleLike = async () => {
@@ -57,12 +64,21 @@ const HomeCard = ({ trackId, playList }) => {
         onPress={handlePress}
         onLongPress={handleLongPress}
         background={TouchableNativeFeedback.Ripple('#363636ed', false)}
+        style={{
+          borderRadius: 25
+        }}
       >
-        <View style={[styles.card, isCurrentTrack && styles.currentTrackCard]}>
+        <LinearGradient
+          // Background Linear Gradient
+          colors={['rgba(0, 22, 51, 0.37)', 'rgba(19, 0, 37, 0.41)']}
+          style={[styles.card, isCurrentTrack && styles.currentTrackCard]}
+        >
+
           <Image source={{ uri: track.image }} style={styles.cardImage} />
           <Text style={[styles.cardText, isCurrentTrack && styles.currentCardText]}>{track.name}</Text>
           <Text style={styles.artistText}>{track.artistName}</Text>
-        </View>
+
+        </LinearGradient>
       </TouchableNativeFeedback>
 
       {/* Options Modal */}
@@ -76,18 +92,24 @@ const HomeCard = ({ trackId, playList }) => {
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
               <View style={styles.modalContainer}>
-              <TouchableOpacity onPress={() => { handleToggleLike(), setModalVisible(false); }}>
-                  {isLiked ? 
-                    <Text style={styles.modalOption}>
-                    <Text  style={styles.boostText}>BOOST</Text> This Track</Text>
-                    :
-                    <Text style={styles.modalOption}>
-                    <Text  style={styles.boostText}>BOOST</Text> This Track</Text>
-                    }
-                </TouchableOpacity>
 
+                {isMine ?
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("Boost", { track: track });
+                      setModalVisible(false);
+                    }}
+                  >
+
+
+                    <Text style={styles.modalOption}>
+                      <BoostButton track={track} />      This Track
+                    </Text>
+
+                  </TouchableOpacity> : null
+                }
                 <TouchableOpacity onPress={() => { handleToggleLike(), setModalVisible(false); }}>
-                  {isLiked ? 
+                  {isLiked ?
                     <Text style={styles.modalOption}>Remove From Favorites</Text>
                     :
                     <Text style={styles.modalOption}>Add To Favorites</Text>}
@@ -121,7 +143,7 @@ const HomeCard = ({ trackId, playList }) => {
 // Styles
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(36, 36, 36, 0.6)',  // Glass effect with transparency
+    fbackgroundColor: 'rgba(36, 36, 36, 0.6)',  // Glass effect with transparency
     padding: 20,
     paddingBottom: 20,
     width: 110,
@@ -182,6 +204,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#444',
+    alignContent: 'center',
+    alignItems: 'center',
   },
   modalCancel: {
     color: 'red',
@@ -194,7 +218,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4b9ad2bd',
     padding: 1,
     borderRadius: 25,
-    
+
   }
 });
 

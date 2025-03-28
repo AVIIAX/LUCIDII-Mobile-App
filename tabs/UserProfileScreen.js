@@ -19,7 +19,6 @@ import Header from "../components/Header";
 import { doc, onSnapshot, getDoc } from "firebase/firestore"; // <-- Added getDoc here
 import HomeCard from "../components/HomeCard";
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
-import FollowButton from "../components/FollowButton";
 import Feather from '@expo/vector-icons/Feather';
 import { useNavigation } from "@react-navigation/native";
 

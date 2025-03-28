@@ -6,6 +6,7 @@ import { UserContext } from "./UserContext";
 import CreateScreen from "./screens/CreateScreen";
 import EditProfile from "./screens/EditProfile";
 import ShopScreen from "./screens/ShopScreen";
+import BoostScreen from "./screens/BoostScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +21,7 @@ const StackNavigator = () => {
         <Stack.Screen name="Create" component={CreateScreen} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="Shop" component={ShopScreen} />
+        <Stack.Screen name="Boost" component={BoostScreen} />
       </>
       ) : (
         <Stack.Screen name="Login" component={LoginScreen} />

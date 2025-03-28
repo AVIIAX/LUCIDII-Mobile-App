@@ -7,7 +7,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import { useAudioPlayer } from '../AudioPlayer';
 import { UserContext } from "../UserContext";
 import { useNavigation } from '@react-navigation/native';
-
+import BoostButton from './BoostButton';
 
 // Function to fetch track duration using expo-av
 const getTrackDuration = async (url) => {
@@ -73,6 +73,7 @@ const SongRow = ({ trackId, playlist }) => {
   const { loadSong, playOrPauseSong, isPlaying, currentTrack, toggleLike} = useAudioPlayer();
   const [modalVisible, setModalVisible] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [isMine, setIsMine] = useState(false);
   const navigation = useNavigation()
 
   // Fetch track data when trackId changes
@@ -93,6 +94,10 @@ const SongRow = ({ trackId, playlist }) => {
     }
   }, [trackId, uid]);
 
+
+   useEffect(() => {
+      setIsMine(track?.artist == uid); // Update like state
+    }, [track, uid]);
 
   const handleToggleLike = async () => {
     if (!track || !uid) return;
@@ -144,6 +149,12 @@ const SongRow = ({ trackId, playlist }) => {
                 </Text>
               </Pressable>
 
+              <Pressable>
+                <Text style={{ color: '#4f4f4f', fontSize: 12 }}>
+                 # {track ? track.genre : 'Loading...'}
+                </Text>
+              </Pressable>
+
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
                 {isThisTrackPlaying ? (
                   <Entypo name="controller-paus" size={15} color="#e3e3e3" />
@@ -170,6 +181,22 @@ const SongRow = ({ trackId, playlist }) => {
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
               <View style={styles.modalContainer}>
+              {isMine ?
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("Boost", { track: track });
+                      setModalVisible(false);
+                    }}
+                  >
+
+
+                    <Text style={styles.modalOption}>
+                      <BoostButton track={track} />      This Track
+                    </Text>
+
+                  </TouchableOpacity> : null
+                }
+                
                 <TouchableOpacity onPress={() => { handleToggleLike(), setModalVisible(false); }}>
                   {isLiked ?
                     <Text style={styles.modalOption}>Remove From Favorites</Text>
